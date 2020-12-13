@@ -40,30 +40,21 @@ public class ItemClientController {
     @GetMapping("/client/retrieve/singleItemRR/{id}")
     public Mono<Item> getOneItemUsingRetrieveRR(@PathVariable String id) {
 
-        Mono<Item> itemMono = webClient.get().uri("v1/items/{id}", id)
-            .retrieve()
-            .bodyToMono(Item.class)
-            .log("Item with id ABC in client Project: " + id);
-
-        Mono<Double> price = itemMono.map(Item::getPrice);
-        System.out.println(price);
-
-        Mono<Item> itemMono1 = itemMono
-            .map(item -> {
-                item.setPrice(item.getPrice() * 1.1);
-                return item;
-            })
-            .log("Item updated: " + itemMono);
-
-
-        return itemMono1;
+        return webClient.get().uri("v1/items/{id}", id)
+                .retrieve()
+                .bodyToMono(Item.class)
+                .map(itemMono -> {
+                    itemMono.setPrice(itemMono.getPrice() * 1.1);
+                    return itemMono;
+                })
+                .log();
     }
 
     @GetMapping("/client/exchange/singleItem/{id}")
     public Mono<Item> getOneItemUsingExchange(@PathVariable String id) {
         return webClient.get().uri("v1/items/{id}", id)
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.bodyToMono(Item.class))
+                .retrieve()
+                .bodyToMono(Item.class)
                 .log("Item with id ABC in client Project: " + id);
     }
 
